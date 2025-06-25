@@ -227,7 +227,7 @@ const ConveyorBelt: React.FC<ConveyorBeltProps> = ({
   const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
 
   // Conveyor configuration
-  const beltConfig: ConveyorBeltConfig = {
+  const beltConfig: ConveyorBeltConfig = useMemo(() => ({
     beltLength: products.length * 8,
     beltWidth: 12,
     beltHeight: 0.5,
@@ -235,7 +235,7 @@ const ConveyorBelt: React.FC<ConveyorBeltProps> = ({
     caseCount: products.length,
     caseSpacing: 8,
     ...config
-  }
+  }), [products.length, config])
 
   // Belt material based on category
   const beltMaterial = useMemo(() => {
@@ -328,7 +328,7 @@ const ConveyorBelt: React.FC<ConveyorBeltProps> = ({
         0
       ] as [number, number, number]
     })
-  }, [products.length, beltConfig])
+  }, [products, beltConfig])
 
   return (
     <group ref={conveyorRef}>

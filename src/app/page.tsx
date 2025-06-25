@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import HeroScene from '@/components/3d/HeroScene'
+import MountainHeroScene from '@/components/3d/MountainHeroScene'
 import Button from '@/components/ui/Button'
 import { GSAPUtils, LuxuryAnimations } from '@/lib/gsap'
 
@@ -17,7 +17,8 @@ export default function HomePage() {
   const heroTextRef = useRef<HTMLDivElement>(null)
   const heroSubtextRef = useRef<HTMLDivElement>(null)
   const heroButtonsRef = useRef<HTMLDivElement>(null)
-  const sectionsRef = useRef<(HTMLElement | null)[]>([])
+  const collectionsGridRef = useRef<HTMLDivElement>(null)
+  const featuresRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // Hero text animations
@@ -33,21 +34,31 @@ export default function HomePage() {
       GSAPUtils.fadeInUp(heroButtonsRef.current, { delay: 1.2 })
     }
 
-    // Section animations - TODO: Fix type compatibility
-    // sectionsRef.current.forEach((section) => {
-    //   if (section) {
-    //     GSAPUtils.scrollTriggerAnimation(
-    //       section,
-    //       GSAPUtils.fadeInUp('.section-content > *', { stagger: 0.2 }),
-    //       {
-    //         trigger: section,
-    //         start: 'top 80%',
-    //         end: 'bottom 20%',
-    //         scrub: false
-    //       }
-    //     )
-    //   }
-    // })
+    // Collections grid animation
+    if (collectionsGridRef.current) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: collectionsGridRef.current,
+          start: 'top 80%',
+          onEnter: () => {
+            GSAPUtils.fadeInUp('.collection-card', { stagger: 0.2 })
+          }
+        }
+      })
+    }
+
+    // Features section animation
+    if (featuresRef.current) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: 'top 80%',
+          onEnter: () => {
+            GSAPUtils.fadeInLeft('.feature-item', { stagger: 0.15 })
+          }
+        }
+      })
+    }
 
     // Parallax effects
     gsap.utils.toArray('.parallax-slow').forEach((element: any) => {
@@ -63,327 +74,382 @@ export default function HomePage() {
       })
     })
 
+    // Hero content scroll parallax
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: '.hero-section',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+          const progress = self.progress
+
+          // Move text content with parallax effect
+          if (heroTextRef.current) {
+            heroTextRef.current.style.transform = `translateY(${progress * 50}px)`
+            heroTextRef.current.style.opacity = `${1 - progress * 0.8}`
+          }
+          if (heroSubtextRef.current) {
+            heroSubtextRef.current.style.transform = `translateY(${progress * 30}px)`
+            heroSubtextRef.current.style.opacity = `${1 - progress * 0.6}`
+          }
+          if (heroButtonsRef.current) {
+            heroButtonsRef.current.style.transform = `translateY(${progress * 20}px)`
+            heroButtonsRef.current.style.opacity = `${1 - progress * 0.4}`
+          }
+        }
+      }
+    })
+
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill())
     }
   }, [])
 
-  const addToRefs = (el: HTMLElement | null, index: number) => {
-    if (el) {
-      sectionsRef.current[index] = el
-    }
-  }
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Hero Section */}
-      <section className="hero-section relative h-screen flex items-center justify-center overflow-hidden">
-        {/* 3D Background */}
-        <div className="absolute inset-0 z-0">
-          <HeroScene />
-        </div>
-
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10" />
-
-        {/* Hero Content */}
-        <div className="relative z-20 text-center text-white max-w-6xl mx-auto px-6">
-          <div ref={heroTextRef} className="hero-text mb-6">
-            <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold leading-none mb-4">
-              <span className="block">Exquisite</span>
-              <span className="block text-gradient-rose">Luxury</span>
-              <span className="block">Redefined</span>
-            </h1>
+      <div className="relative overflow-hidden">
+        {/* Mountain Hero Section */}
+        <section className="hero-section relative h-screen flex items-center justify-center overflow-hidden">
+          {/* Mountain 3D Background */}
+          <div className="absolute inset-0 z-0">
+            <MountainHeroScene />
           </div>
 
-          <div ref={heroSubtextRef} className="opacity-0">
-            <p className="font-body text-xl md:text-2xl lg:text-3xl mb-8 max-w-3xl mx-auto leading-relaxed text-white/90">
-              Discover our exclusive collection of handcrafted jewelry, premium timepieces, 
-              and precious gemstones that define sophistication.
-            </p>
-          </div>
+          {/* Gradient Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 z-10" />
 
-          <div ref={heroButtonsRef} className="opacity-0 flex flex-col sm:flex-row gap-6 justify-center">
-            <Button variant="primary" size="xl" className="text-lg px-12">
-              Explore Collection
-            </Button>
-            <Button variant="outline" size="xl" className="text-lg px-12 border-white text-white hover:bg-white hover:text-charcoal-900">
-              Watch Our Story
-            </Button>
-          </div>
-        </div>
+          {/* Aurora effect overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-cyan-500/10 z-10 animate-pulse" />
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex flex-col items-center text-white/70 animate-bounce">
-            <span className="font-accent text-sm mb-2">Scroll to Discover</span>
-            <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse" />
+          {/* Hero Content */}
+          <div className="relative z-20 text-center text-white max-w-6xl mx-auto px-6">
+            <div ref={heroTextRef} className="hero-text mb-6">
+              <h1 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-none mb-4">
+                <span className="block mb-2">New</span>
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-400 mb-2">
+                Collections
+              </span>
+                <span className="block text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+                Summit
+              </span>
+              </h1>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Philosophy Section */}
-      <section 
-        ref={(el) => addToRefs(el, 0)}
-        className="luxury-section bg-gradient-to-b from-pearl to-white"
-      >
-        <div className="luxury-container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h2 className="font-display text-5xl lg:text-6xl font-bold text-charcoal-900">
-                  Our <span className="text-gradient-rose">Philosophy</span>
-                </h2>
-                <div className="w-24 h-1 bg-rose-gold-gradient rounded-full" />
-              </div>
-              
-              <div className="space-y-6 text-lg text-charcoal-700 font-body leading-relaxed">
-                <p>
-                  At Luxuria, we believe that true luxury lies in the perfect harmony of 
-                  <strong className="text-rose-gold-600"> authenticity</strong>, 
-                  <strong className="text-rose-gold-600"> craftsmanship</strong>, and 
-                  <strong className="text-rose-gold-600"> honesty</strong>.
-                </p>
-                <p>
-                  Every piece in our collection tells a story of meticulous attention to detail, 
-                  sourced from the finest materials and crafted by master artisans who understand 
-                  that luxury is not just about appearance—it&apos;s about legacy.
-                </p>
-              </div>
+            <div ref={heroSubtextRef} className="opacity-0 mb-8">
+              <p className="font-body text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed text-white/90">
+                Discover our latest arrivals positioned at the peaks of luxury.
+                Three exceptional collections showcasing the pinnacle of craftsmanship,
+                beauty, and timeless elegance.
+              </p>
+            </div>
 
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-rose-gold-gradient rounded-full" />
-                  <span className="font-accent font-medium text-charcoal-800">Authentic Materials</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-rose-gold-gradient rounded-full" />
-                  <span className="font-accent font-medium text-charcoal-800">Master Craftsmanship</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-rose-gold-gradient rounded-full" />
-                  <span className="font-accent font-medium text-charcoal-800">Honest Practices</span>
-                </div>
+            <div ref={heroButtonsRef} className="opacity-0 mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                    variant="primary"
+                    size="lg"
+                    className="bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 text-white shadow-xl"
+                >
+                  <Link href="/collections" className="flex items-center">
+                    Explore Collections
+                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </Button>
+
+                <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-white/40 text-white hover:bg-white/10 backdrop-blur-md"
+                >
+                  <Link href="/about">
+                    Our Story
+                  </Link>
+                </Button>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="parallax-slow">
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-luxury-xl">
-                  <div className="absolute inset-0 bg-rose-gold-gradient opacity-20" />
-                  <img 
-                    src="/images/craftsmanship.jpg" 
-                    alt="Master craftsman at work" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+            {/* Collection Indicators */}
+            <div className="opacity-0 collection-indicators">
+              <div className="flex justify-center space-x-8 text-center">
+                <Link href="/watches" className="group cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-all duration-300">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M12 1v6m0 6v6"></path>
+                      <path d="m21 12-6-6-6 6-6-6"></path>
+                    </svg>
+                  </div>
+                  <p className="text-sm font-accent text-white/80 group-hover:text-white transition-colors">
+                    Timepieces
+                  </p>
+                </Link>
+
+                <Link href="/gold" className="group cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-all duration-300">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </div>
+                  <p className="text-sm font-accent text-white/80 group-hover:text-white transition-colors">
+                    Gold Jewelry
+                  </p>
+                </Link>
+
+                <Link href="/diamond" className="group cursor-pointer">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-all duration-300">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 3h12l4 6-10 13L2 9l4-6z"></path>
+                      <path d="M11 3L8 9l4 13 4-13-3-6"></path>
+                    </svg>
+                  </div>
+                  <p className="text-sm font-accent text-white/80 group-hover:text-white transition-colors">
+                    Diamonds
+                  </p>
+                </Link>
               </div>
-              
-              {/* Floating Elements */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-champagne rounded-full opacity-80 floating" />
-              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-rose-gold-200 rounded-full opacity-60 floating" style={{ animationDelay: '1s' }} />
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Featured Collections */}
-      <section 
-        ref={(el) => addToRefs(el, 1)}
-        className="luxury-section bg-charcoal-gradient text-white"
-      >
-        <div className="luxury-container">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-5xl lg:text-6xl font-bold mb-6">
-              Featured <span className="text-gradient-rose">Collections</span>
-            </h2>
-            <p className="font-body text-xl text-white/80 max-w-3xl mx-auto">
-              Explore our signature collections, each piece carefully curated to represent 
-              the pinnacle of luxury and sophistication.
-            </p>
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="flex flex-col items-center animate-bounce">
+              <p className="text-white/60 text-sm font-accent mb-2">Scroll to explore</p>
+              <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Watches Collection */}
-            <Link href="/watches" className="group">
-              <div className="luxury-card bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-500">
-                <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-rose-gold-400/20 to-champagne/20">
-                  <img 
-                    src="/images/watches-preview.jpg" 
-                    alt="Luxury Watches Collection" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                </div>
-                <h3 className="font-display text-2xl font-bold mb-4 text-white">Timepieces</h3>
-                <p className="font-body text-white/80 mb-6">
-                  Precision meets elegance in our collection of luxury watches from renowned Swiss manufacturers.
-                </p>
-                <div className="flex items-center text-rose-gold-400 group-hover:text-rose-gold-300 transition-colors">
-                  <span className="font-accent font-medium">Explore Watches</span>
-                  <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          {/* Collection labels positioned over mountain peaks */}
+          <div className="absolute inset-0 z-15 pointer-events-none">
+            {/* Left peak label - Timepieces */}
+            <div className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="bg-black/40 backdrop-blur-md rounded-lg px-4 py-2 border border-white/20">
+                <p className="text-white font-accent text-sm text-center">Diamond Elegance</p>
+                <p className="text-white/70 text-xs text-center">Swiss Timepiece</p>
+              </div>
+            </div>
+
+            {/* Center peak label - Gold */}
+            <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="bg-black/40 backdrop-blur-md rounded-lg px-4 py-2 border border-white/20">
+                <p className="text-white font-accent text-sm text-center">Eternal Rose</p>
+                <p className="text-white/70 text-xs text-center">18k Rose Gold</p>
+              </div>
+            </div>
+
+            {/* Right peak label - Diamonds */}
+            <div className="absolute top-1/3 right-1/4 transform translate-x-1/2 -translate-y-1/2">
+              <div className="bg-black/40 backdrop-blur-md rounded-lg px-4 py-2 border border-white/20">
+                <p className="text-white font-accent text-sm text-center">Radiant Solitaire</p>
+                <p className="text-white/70 text-xs text-center">2.5ct Diamond</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Collections Grid Section */}
+        <section
+            ref={collectionsGridRef}
+            className="py-20 lg:py-32 bg-gradient-to-b from-pearl to-white relative"
+        >
+          <div className="luxury-container">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl lg:text-6xl font-bold text-charcoal-900 mb-6">
+                Signature <span className="text-gradient-rose">Collections</span>
+              </h2>
+              <p className="font-body text-xl text-charcoal-700 max-w-3xl mx-auto">
+                Each collection represents decades of expertise, featuring handpicked pieces
+                that define modern luxury and timeless sophistication.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+              {/* Timepieces Collection */}
+              <div className="collection-card opacity-0 group">
+                <Link href="/watches">
+                  <div className="luxury-card h-full text-center group-hover:shadow-gold-glow transition-all duration-500">
+                    <div className="w-20 h-20 bg-gradient-to-br from-charcoal-600 to-charcoal-800 rounded-full mx-auto mb-6 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6"></path>
+                        <path d="m21 12-6-6-6 6-6-6"></path>
+                      </svg>
+                    </div>
+                    <h3 className="font-display text-2xl font-bold text-charcoal-900 mb-4">
+                      Swiss Timepieces
+                    </h3>
+                    <p className="font-body text-charcoal-700 leading-relaxed mb-6">
+                      Precision-crafted luxury watches that combine traditional
+                      Swiss watchmaking with contemporary design excellence.
+                    </p>
+                    <div className="text-rose-gold-500 font-accent font-medium group-hover:text-rose-gold-600 transition-colors">
+                      Explore Watches →
+                    </div>
+                  </div>
+                </Link>
+              </div>
+
+              {/* Gold Collection */}
+              <div className="collection-card opacity-0 group">
+                <Link href="/gold">
+                  <div className="luxury-card h-full text-center group-hover:shadow-gold-glow transition-all duration-500">
+                    <div className="w-20 h-20 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </div>
+                    <h3 className="font-display text-2xl font-bold text-charcoal-900 mb-4">
+                      Pure Gold
+                    </h3>
+                    <p className="font-body text-charcoal-700 leading-relaxed mb-6">
+                      Exquisite jewelry crafted from the finest 14k, 18k, and 24k gold,
+                      representing generations of goldsmithing mastery.
+                    </p>
+                    <div className="text-rose-gold-500 font-accent font-medium group-hover:text-rose-gold-600 transition-colors">
+                      Explore Gold →
+                    </div>
+                  </div>
+                </Link>
+              </div>
+
+              {/* Diamond Collection */}
+              <div className="collection-card opacity-0 group">
+                <Link href="/diamond">
+                  <div className="luxury-card h-full text-center group-hover:shadow-gold-glow transition-all duration-500">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 3h12l4 6-10 13L2 9l4-6z"></path>
+                        <path d="M11 3L8 9l4 13 4-13-3-6"></path>
+                      </svg>
+                    </div>
+                    <h3 className="font-display text-2xl font-bold text-charcoal-900 mb-4">
+                      Certified Diamonds
+                    </h3>
+                    <p className="font-body text-charcoal-700 leading-relaxed mb-6">
+                      Exceptional diamonds selected for their brilliance, fire, and
+                      scintillation, each certified for authenticity and quality.
+                    </p>
+                    <div className="text-rose-gold-500 font-accent font-medium group-hover:text-rose-gold-600 transition-colors">
+                      Explore Diamonds →
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section
+            ref={featuresRef}
+            className="py-20 lg:py-32 bg-gradient-to-b from-white to-champagne relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-[url('/images/patterns/luxury-pattern.svg')] opacity-5" />
+
+          <div className="luxury-container relative">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl lg:text-6xl font-bold text-charcoal-900 mb-6">
+                Why Choose <span className="text-gradient-rose">Luxuria</span>
+              </h2>
+              <p className="font-body text-xl text-charcoal-700 max-w-3xl mx-auto">
+                Three generations of excellence in luxury jewelry and timepieces,
+                built on trust, authenticity, and uncompromising quality.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="feature-item opacity-0 text-center">
+                <div className="w-16 h-16 bg-rose-gold-gradient rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-              </div>
-            </Link>
-
-            {/* Gold Collection */}
-            <Link href="/gold" className="group">
-              <div className="luxury-card bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-500">
-                <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-luxury-gold/20 to-rose-gold-400/20">
-                  <img 
-                    src="/images/gold-preview.jpg" 
-                    alt="Gold Jewelry Collection" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                </div>
-                <h3 className="font-display text-2xl font-bold mb-4 text-white">Gold</h3>
-                <p className="font-body text-white/80 mb-6">
-                  Exquisite gold jewelry crafted from the finest 14k, 18k, and 24k gold in timeless designs.
+                <h3 className="font-display text-xl font-bold text-charcoal-900 mb-3">
+                  Authenticated
+                </h3>
+                <p className="font-body text-charcoal-700">
+                  Every piece comes with certification and authenticity guarantee
                 </p>
-                <div className="flex items-center text-rose-gold-400 group-hover:text-rose-gold-300 transition-colors">
-                  <span className="font-accent font-medium">Explore Gold</span>
-                  <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </div>
+
+              <div className="feature-item opacity-0 text-center">
+                <div className="w-16 h-16 bg-rose-gold-gradient rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                   </svg>
                 </div>
-              </div>
-            </Link>
-
-            {/* Diamond Collection */}
-            <Link href="/diamond" className="group">
-              <div className="luxury-card bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-500">
-                <div className="aspect-square mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-white/20 to-pearl/20">
-                  <img 
-                    src="/images/diamond-preview.jpg" 
-                    alt="Diamond Jewelry Collection" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                </div>
-                <h3 className="font-display text-2xl font-bold mb-4 text-white">Diamonds</h3>
-                <p className="font-body text-white/80 mb-6">
-                  Brilliant diamonds and precious gemstones, each piece certified and ethically sourced.
+                <h3 className="font-display text-xl font-bold text-charcoal-900 mb-3">
+                  Handcrafted
+                </h3>
+                <p className="font-body text-charcoal-700">
+                  Master artisans create each piece with meticulous attention to detail
                 </p>
-                <div className="flex items-center text-rose-gold-400 group-hover:text-rose-gold-300 transition-colors">
-                  <span className="font-accent font-medium">Explore Diamonds</span>
-                  <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </div>
+
+              <div className="feature-item opacity-0 text-center">
+                <div className="w-16 h-16 bg-rose-gold-gradient rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
+                <h3 className="font-display text-xl font-bold text-charcoal-900 mb-3">
+                  Lifetime Warranty
+                </h3>
+                <p className="font-body text-charcoal-700">
+                  Comprehensive protection and maintenance for your investment
+                </p>
               </div>
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      {/* Craftsmanship Process */}
-      <section 
-        ref={(el) => addToRefs(el, 2)}
-        className="luxury-section bg-pearl"
-      >
-        <div className="luxury-container">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-5xl lg:text-6xl font-bold text-charcoal-900 mb-6">
-              The Art of <span className="text-gradient-rose">Creation</span>
-            </h2>
-            <p className="font-body text-xl text-charcoal-700 max-w-3xl mx-auto">
-              Witness the meticulous process behind every masterpiece, where tradition meets innovation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Design",
-                description: "Conceptualizing timeless pieces that blend classical elegance with contemporary appeal."
-              },
-              {
-                step: "02", 
-                title: "Sourcing",
-                description: "Selecting only the finest materials from trusted suppliers worldwide."
-              },
-              {
-                step: "03",
-                title: "Crafting",
-                description: "Master artisans bring each design to life with decades of expertise."
-              },
-              {
-                step: "04",
-                title: "Perfection",
-                description: "Rigorous quality control ensures every piece meets our exacting standards."
-              }
-            ].map((item, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-20 h-20 bg-rose-gold-gradient rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <span className="font-display text-2xl font-bold text-white">{item.step}</span>
+              <div className="feature-item opacity-0 text-center">
+                <div className="w-16 h-16 bg-rose-gold-gradient rounded-full mx-auto mb-6 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
                 </div>
-                <h3 className="font-display text-2xl font-bold text-charcoal-900 mb-4">{item.title}</h3>
-                <p className="font-body text-charcoal-700 leading-relaxed">{item.description}</p>
+                <h3 className="font-display text-xl font-bold text-charcoal-900 mb-3">
+                  Heritage
+                </h3>
+                <p className="font-body text-charcoal-700">
+                  Three generations of passion for exceptional jewelry and timepieces
+                </p>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Awards & Recognition */}
-      <section 
-        ref={(el) => addToRefs(el, 3)}
-        className="luxury-section bg-white"
-      >
-        <div className="luxury-container">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-5xl lg:text-6xl font-bold text-charcoal-900 mb-6">
-              Awards & <span className="text-gradient-rose">Recognition</span>
+        {/* CTA Section */}
+        <section className="py-20 lg:py-32 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/images/patterns/starfield.svg')] opacity-20" />
+
+          <div className="luxury-container relative text-center">
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-white mb-6">
+              Begin Your <span className="text-gradient-rose">Luxury Journey</span>
             </h2>
-            <p className="font-body text-xl text-charcoal-700 max-w-3xl mx-auto">
-              Our commitment to excellence has been recognized by industry leaders worldwide.
+            <p className="font-body text-xl text-white/80 max-w-3xl mx-auto mb-12">
+              Discover pieces that will become part of your story, crafted with passion
+              and designed to be treasured for generations.
             </p>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-            {[
-              { name: "Luxury Awards 2024", image: "/images/award-1.png" },
-              { name: "Jewelry Excellence", image: "/images/award-2.png" },
-              { name: "Craft Masters Guild", image: "/images/award-3.png" },
-              { name: "Innovation Prize", image: "/images/award-4.png" }
-            ].map((award, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-24 h-24 mx-auto mb-4 grayscale group-hover:grayscale-0 transition-all duration-300">
-                  <img src={award.image} alt={award.name} className="w-full h-full object-contain" />
-                </div>
-                <span className="font-accent text-sm text-charcoal-600">{award.name}</span>
-              </div>
-            ))}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button variant="primary" size="lg">
+                <Link href="/collections">
+                  Explore All Collections
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-charcoal-900">
+                <Link href="/contact">
+                  Schedule Consultation
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Contact CTA */}
-      <section 
-        ref={(el) => addToRefs(el, 4)}
-        className="luxury-section bg-rose-gold-gradient text-white"
-      >
-        <div className="luxury-container text-center">
-          <h2 className="font-display text-5xl lg:text-6xl font-bold mb-6">
-            Begin Your Journey
-          </h2>
-          <p className="font-body text-xl mb-8 max-w-3xl mx-auto opacity-90">
-            Experience luxury redefined. Connect with our specialists to discover 
-            the perfect piece for your collection.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button variant="secondary" size="xl" className="text-lg px-12 bg-white text-charcoal-900 hover:bg-pearl">
-              Schedule Consultation
-            </Button>
-            <Button variant="outline" size="xl" className="text-lg px-12 border-white text-white hover:bg-white hover:text-charcoal-900">
-              Contact via WhatsApp
-            </Button>
-          </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
   )
 }

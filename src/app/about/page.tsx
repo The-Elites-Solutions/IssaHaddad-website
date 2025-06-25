@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Button from '@/components/ui/Button'
@@ -122,9 +123,11 @@ export default function AboutPage() {
 
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-luxury-xl">
-                <img 
+                <Image 
                   src="/images/about/mission-workshop.jpg" 
                   alt="Master craftsman at work" 
+                  width={600}
+                  height={600}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -215,9 +218,11 @@ export default function AboutPage() {
                     </div>
                     
                     <div className="aspect-video rounded-xl overflow-hidden shadow-luxury">
-                      <img 
+                      <Image 
                         src={milestone.image} 
                         alt={milestone.title}
+                        width={600}
+                        height={338}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -361,9 +366,11 @@ export default function AboutPage() {
               <div key={index} className="luxury-card group text-center">
                 <div className="relative mb-6">
                   <div className="aspect-square rounded-xl overflow-hidden mx-auto w-48">
-                    <img 
+                    <Image 
                       src={member.image} 
                       alt={member.name}
+                      width={192}
+                      height={192}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>

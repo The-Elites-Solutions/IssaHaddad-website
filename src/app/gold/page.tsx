@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, Suspense } from 'react'
+import Image from 'next/image'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
 import { gsap } from 'gsap'
@@ -519,10 +520,13 @@ export default function GoldPage() {
 
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-luxury-xl">
-                <img 
+                <Image 
                   src="/images/goldsmith-workshop.jpg" 
                   alt="Master goldsmith at work" 
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  priority
                 />
               </div>
               

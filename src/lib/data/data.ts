@@ -468,7 +468,7 @@ export const productTemplate: Partial<JewelryProduct> = {
   whatsappInquiry: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+1234567890'
 }
 
-export default {
+const jewelryData = {
   watchesData,
   goldData,
   diamondData,
@@ -481,4 +481,6 @@ export default {
   searchProducts,
   getCollectionStats
 }
+
+export default jewelryData
     

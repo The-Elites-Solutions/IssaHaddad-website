@@ -67,13 +67,15 @@ export class GSAPUtils {
       duration?: number
       x?: number
       ease?: string
+      stagger?: number
     } = {}
   ): gsap.core.Tween {
     const {
       delay = 0,
       duration = 0.8,
       x = -100,
-      ease = "power3.out"
+      ease = "power3.out",
+      stagger = 0.1
     } = options
 
     return gsap.fromTo(element,
@@ -88,7 +90,8 @@ export class GSAPUtils {
         scale: 1,
         duration,
         delay,
-        ease
+        ease,
+        stagger
       }
     )
   }
